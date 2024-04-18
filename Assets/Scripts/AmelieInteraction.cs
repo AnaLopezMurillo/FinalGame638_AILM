@@ -1,36 +1,55 @@
 using UnityEngine;
-using TMPro; // Include the TextMesh Pro namespace
+using TMPro;
 using System.Collections;
 
 public class CharacterInteraction : MonoBehaviour
 {
-    public TextMeshProUGUI dialogueText;  
-    public string message = "Hello, welcome to our world!";  
-    public float typingSpeed = 0.05f;  
+    // some sort of destroyed dialogueText error happening i should figure out where this is coming from
+    public TextMeshProUGUI dialogueText;
+    public GameObject interact;
+    public string message = "Text to display goes here!";  
+    public float typingSpeed = 0.1f;  
     public GameObject amelieSprite;
-    private SpriteRenderer spriteRenderer;  
+    private SpriteRenderer spriteRenderer;
+    private bool isInTrigger;
 
-    private void Start()
+    void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>(); 
-        dialogueText.gameObject.SetActive(false);
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void Update()
     {
+        if (isInTrigger && Input.GetKeyDown(KeyCode.E)) {
+            amelieSprite.SetActive(true);
+            spriteRenderer.enabled = false;
+            dialogueText.gameObject.SetActive(true);
+            StartCoroutine(TypeDialogue(message));
+        }
+        if (!isInTrigger)
+        {
+            amelieSprite.SetActive(false);
+            spriteRenderer.enabled = true;
+            StopAllCoroutines();
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        isInTrigger = true;
+        interact.SetActive(true);
         Debug.Log("entered collider");
-        amelieSprite.SetActive(true);
-        spriteRenderer.enabled = false; 
-        dialogueText.gameObject.SetActive(true); 
-        StartCoroutine(TypeDialogue(message));  
     }
 
-    private void OnTriggerExit2D(Collider2D other)
+    private void OnTriggerExit(Collider other)
     {
+        isInTrigger = false;
+        interact.SetActive(false);
+        Debug.Log("exited collider");
         amelieSprite.SetActive(false);
         StopAllCoroutines();  // Stop the typing coroutine
-        dialogueText.gameObject.SetActive(false); 
-        spriteRenderer.enabled = true;  
+        dialogueText.gameObject.SetActive(false);
+        spriteRenderer.enabled = true;
     }
 
     IEnumerator TypeDialogue(string dialogue)
