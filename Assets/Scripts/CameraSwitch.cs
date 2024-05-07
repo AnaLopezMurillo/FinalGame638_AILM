@@ -21,10 +21,10 @@ public class CameraSwitch : MonoBehaviour
     private void Update()
     {
         // switch if in trigger + Press E
-        if ((isInTrigger && Input.GetKeyDown(KeyCode.E)))
+        if (isInTrigger && Input.GetKeyDown(KeyCode.E))
         {
             SwitchCameras();
-        } if (secondaryCamera.activeSelf && Input.GetKeyDown(KeyCode.Z))
+        } if (!mainCamera.activeSelf && Input.GetKeyDown(KeyCode.Z))
         {
             SwitchCameras();
         }
@@ -32,13 +32,22 @@ public class CameraSwitch : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        interact.SetActive(true);
+        if (mainCamera.activeSelf)
+        {
+            if (interact is not null)
+            {
+                interact.SetActive(true);
+            }
+        }
         isInTrigger = true;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        interact.SetActive(false);
+        if (interact is not null)
+        {
+            interact.SetActive(false);
+        }
         isInTrigger = false;
     }
 

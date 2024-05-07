@@ -18,26 +18,6 @@ public class GravityCtrl : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    //void FixedUpdate()
-    //{
-    //    if (gravity)    // if there is a set planet to orbit
-    //    {
-    //        Vector3 gravityUp = Vector3.zero;
-
-    //        gravityUp = (transform.position - gravity.transform.position).normalized;
-
-    //        Vector3 localUp = transform.up;
-
-    //        Quaternion targetRotation = Quaternion.FromToRotation(localUp, gravityUp) * transform.rotation;
-
-    //        transform.up = Vector3.Lerp(transform.up, gravityUp, rotationSpeed * Time.deltaTime);
-
-    //        // push down for gravity
-    //        rb.AddForce((-gravityUp * gravity.gravity) * rb.mass);
-    //    }
-
-    //}
-
     void FixedUpdate()
     {
         if (gravity)
@@ -55,5 +35,15 @@ public class GravityCtrl : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             rb.GetComponent<Rigidbody>().AddForce((-gravityUp * gravity.gravity) * rb.mass);
         }
+    }
+
+    // This is the new method
+    public Vector3 GetGravityUp()
+    {
+        if (gravity)
+        {
+            return (transform.position - gravity.transform.position).normalized;
+        }
+        return Vector3.up; // Default to world up if no gravity source is set
     }
 }

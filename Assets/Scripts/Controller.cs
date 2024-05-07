@@ -4,80 +4,75 @@ using UnityEngine;
 
 public class Controller : MonoBehaviour
 {
-
     public Camera playerCamera;
-
     public float rotationSpeed = 50.0f;
-    public float translationSpeed = 5.0f;
+    public float translationSpeed = 10.0f;
+    public float jumpStrength = 7.0f;
 
-    private float yaw = 0.0f;
-    private float pitch = 0.0f;
+    private Rigidbody rb;
+    public Transform planetCenter;  // Assign this to the transform of the planet's center in the inspector
 
-    public bool cameraCanMove = true;
-    public float mouseSensitivity = 2f;
-
-    public bool invertCamera = false;
-    public float maxLookAngle = 50f;
-
-    /* Use this for initialization
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
+        rb.useGravity = false;  // Since we are using custom gravity
+    }
 
-    }*/
-
-    // Update is called once per frame
     void Update()
     {
+        if (!CharacterInteraction.isDialogueActive)
+        {
+            HandleRotation();
+            HandleMovement();
+            HandleJump();
+        }
 
-        //yaw = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * mouseSensitivity;
+        //ApplyGravity();
+    }
 
-        //if (!invertCamera)
-        //{
-        //    pitch -= mouseSensitivity * Input.GetAxis("Mouse Y");
-        //}
-        //else
-        //{
-        //    // Inverted Y
-        //    pitch += mouseSensitivity * Input.GetAxis("Mouse Y");
-        //}
-
-        //// Clamp pitch between lookAngle
-        //pitch = Mathf.Clamp(pitch, -maxLookAngle, maxLookAngle);
-
-        //transform.localEulerAngles = new Vector3(0, yaw, 0);
-        //playerCamera.transform.localEulerAngles = new Vector3(pitch, 0, 0);
-
-
-
+    void HandleRotation()
+    {
         if (Input.GetKey("left"))
         {
-            transform.Rotate(0f, -1.0f * rotationSpeed * Time.deltaTime, 0f, Space.Self);
+            transform.Rotate(0f, -1.0f * rotationSpeed * Time.deltaTime, 0f);
         }
         if (Input.GetKey("right"))
         {
-            transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f, Space.Self);
+            transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f);
         }
+    }
 
-        //Vector3 travelDir = transform.TransformDirection(Vector3.forward); //get in world coordinates
+    void HandleMovement()
+    {
         Vector3 travelDir = transform.forward;
-        //travelDir.y = 0.0f; //prevent user from changing altitude above plane
-        travelDir.Normalize();
-
         if (Input.GetKey("up"))
         {
             transform.Translate(travelDir * Time.deltaTime * translationSpeed, Space.World);
         }
-
         if (Input.GetKey("down"))
         {
             transform.Translate(-travelDir * Time.deltaTime * translationSpeed, Space.World);
         }
-
-       
     }
 
-    private void OnCollisionEnter(Collision collision)
+    void HandleJump()
     {
-        print("collision!");
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Vector3 jumpDirection = (transform.position - planetCenter.position).normalized;
+            rb.AddForce(jumpDirection * jumpStrength, ForceMode.Impulse);
+        }
+    }
+
+    //void ApplyGravity()
+    //{
+    //    Vector3 gravityDirection = (planetCenter.position - transform.position).normalized;
+    //    rb.AddForce(gravityDirection * 20f); 
+    //}
+
+    bool IsGrounded()
+    {
+        Vector3 groundDirection = (planetCenter.position - transform.position).normalized;
+        return Physics.Raycast(transform.position, -groundDirection, 1.1f);
     }
 }
